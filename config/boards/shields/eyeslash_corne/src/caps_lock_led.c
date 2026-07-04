@@ -11,6 +11,8 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/util.h>
 
+#include <drivers/ext_power.h>
+
 #include <zmk/event_manager.h>
 #include <zmk/events/hid_indicators_changed.h>
 #include <zmk/workqueue.h>
@@ -36,6 +38,10 @@ BUILD_ASSERT(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_BRIGHTNESS >= 0 &&
 
 static const struct device *const led_strip = DEVICE_DT_GET(STRIP_NODE);
 
+#if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER)
+static const struct device *const ext_power = DEVICE_DT_GET(DT_INST(0, zmk_ext_power_generic));
+#endif
+
 static struct led_rgb pixels[STRIP_NUM_PIXELS];
 static bool caps_lock_on;
 static struct k_work caps_lock_led_work;
@@ -47,6 +53,15 @@ static void caps_lock_led_apply(struct k_work *work) {
         LOG_WRN("Caps lock LED strip is not ready");
         return;
     }
+
+#if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER)
+    if (caps_lock_on && device_is_ready(ext_power)) {
+        int err = ext_power_enable(ext_power);
+        if (err < 0) {
+            LOG_WRN("Failed to enable external power for caps lock LED (%d)", err);
+        }
+    }
+#endif
 
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
         pixels[i] = (struct led_rgb){.r = 0, .g = 0, .b = 0};

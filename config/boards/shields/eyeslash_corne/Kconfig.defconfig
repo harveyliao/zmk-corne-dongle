@@ -32,7 +32,7 @@ config EYESLASH_CORNE_CAPS_LOCK_LED_INDEX
 
 config EYESLASH_CORNE_CAPS_LOCK_LED_BRIGHTNESS
     int "Caps lock indicator red brightness"
-    default 96
+    default 180
     depends on EYESLASH_CORNE_CAPS_LOCK_LED
 
 
