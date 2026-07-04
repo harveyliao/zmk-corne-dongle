@@ -1,0 +1,1 @@
+zephyr_library_sources_ifdef(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED src/caps_lock_led.c)
