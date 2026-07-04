@@ -63,14 +63,10 @@ static void caps_lock_led_apply(struct k_work *work) {
     }
 #endif
 
-    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
-        pixels[i] = (struct led_rgb){.r = 0, .g = 0, .b = 0};
-    }
-
-    if (caps_lock_on) {
-        pixels[CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_INDEX] =
-            (struct led_rgb){.r = CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_BRIGHTNESS, .g = 0, .b = 0};
-    }
+    pixels[CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_INDEX] =
+        caps_lock_on
+            ? (struct led_rgb){.r = CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_BRIGHTNESS, .g = 0, .b = 0}
+            : (struct led_rgb){.r = 0, .g = 0, .b = 0};
 
     int err = led_strip_update_rgb(led_strip, pixels, STRIP_NUM_PIXELS);
     if (err < 0) {
