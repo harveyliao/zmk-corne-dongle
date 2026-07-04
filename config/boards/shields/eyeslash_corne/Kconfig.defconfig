@@ -27,7 +27,7 @@ config EYESLASH_CORNE_CAPS_LOCK_LED
 
 config EYESLASH_CORNE_CAPS_LOCK_LED_INDEX
     int "Caps lock indicator LED index"
-    default 0
+    default 5
     depends on EYESLASH_CORNE_CAPS_LOCK_LED
 
 config EYESLASH_CORNE_CAPS_LOCK_LED_BRIGHTNESS
