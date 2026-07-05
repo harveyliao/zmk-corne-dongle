@@ -35,6 +35,8 @@ BUILD_ASSERT(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_INDEX < STRIP_NUM_PIXELS,
 BUILD_ASSERT(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_BRIGHTNESS >= 0 &&
                  CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_BRIGHTNESS <= 255,
              "Caps lock LED brightness must be between 0 and 255");
+BUILD_ASSERT(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_POWER_SETTLE_MS >= 0,
+             "Caps lock LED external power settle delay must be non-negative");
 
 static const struct device *const led_strip = DEVICE_DT_GET(STRIP_NODE);
 
@@ -56,9 +58,13 @@ static void caps_lock_led_apply(struct k_work *work) {
 
 #if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER)
     if (caps_lock_on && device_is_ready(ext_power)) {
+        const bool power_was_off = ext_power_get(ext_power) <= 0;
         int err = ext_power_enable(ext_power);
         if (err < 0) {
             LOG_WRN("Failed to enable external power for caps lock LED (%d)", err);
+        }
+        if (power_was_off && CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_POWER_SETTLE_MS > 0) {
+            k_msleep(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_POWER_SETTLE_MS);
         }
     }
 #endif

@@ -35,6 +35,11 @@ config EYESLASH_CORNE_CAPS_LOCK_LED_BRIGHTNESS
     default 153
     depends on EYESLASH_CORNE_CAPS_LOCK_LED
 
+config EYESLASH_CORNE_CAPS_LOCK_LED_POWER_SETTLE_MS
+    int "Caps lock LED external power settle delay"
+    default 100
+    depends on EYESLASH_CORNE_CAPS_LOCK_LED
+
 
 if ZMK_DISPLAY
 
