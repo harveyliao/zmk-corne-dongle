@@ -37,6 +37,8 @@ BUILD_ASSERT(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_BRIGHTNESS >= 0 &&
              "Caps lock LED brightness must be between 0 and 255");
 BUILD_ASSERT(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_POWER_SETTLE_MS >= 0,
              "Caps lock LED external power settle delay must be non-negative");
+BUILD_ASSERT(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_REASSERT_MS >= 0,
+             "Caps lock LED reassert delay must be non-negative");
 
 static const struct device *const led_strip = DEVICE_DT_GET(STRIP_NODE);
 
@@ -47,6 +49,7 @@ static const struct device *const ext_power = DEVICE_DT_GET(DT_INST(0, zmk_ext_p
 static struct led_rgb pixels[STRIP_NUM_PIXELS];
 static bool caps_lock_on;
 static struct k_work caps_lock_led_work;
+static struct k_work_delayable caps_lock_led_reassert_work;
 
 static void caps_lock_led_apply(struct k_work *work) {
     ARG_UNUSED(work);
@@ -93,12 +96,19 @@ static int caps_lock_led_listener(const zmk_event_t *eh) {
 
     caps_lock_on = (ev->indicators & LED_CLCK) != 0;
     k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &caps_lock_led_work);
+    if (caps_lock_on && CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_REASSERT_MS > 0) {
+        k_work_schedule_for_queue(zmk_workqueue_lowprio_work_q(), &caps_lock_led_reassert_work,
+                                  K_MSEC(CONFIG_EYESLASH_CORNE_CAPS_LOCK_LED_REASSERT_MS));
+    } else {
+        k_work_cancel_delayable(&caps_lock_led_reassert_work);
+    }
 
     return ZMK_EV_EVENT_BUBBLE;
 }
 
 static int caps_lock_led_init(void) {
     k_work_init(&caps_lock_led_work, caps_lock_led_apply);
+    k_work_init_delayable(&caps_lock_led_reassert_work, caps_lock_led_apply);
     return 0;
 }
 

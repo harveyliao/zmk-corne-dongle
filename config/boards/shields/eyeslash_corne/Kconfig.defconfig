@@ -40,6 +40,11 @@ config EYESLASH_CORNE_CAPS_LOCK_LED_POWER_SETTLE_MS
     default 100
     depends on EYESLASH_CORNE_CAPS_LOCK_LED
 
+config EYESLASH_CORNE_CAPS_LOCK_LED_REASSERT_MS
+    int "Caps lock LED frame reassert delay"
+    default 250
+    depends on EYESLASH_CORNE_CAPS_LOCK_LED
+
 
 if ZMK_DISPLAY
 
